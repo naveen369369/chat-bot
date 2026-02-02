@@ -11,7 +11,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://delicate-tarsier-516031.netlify.app"
+        "https://chatbot369.netlify.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
