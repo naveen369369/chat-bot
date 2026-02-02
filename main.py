@@ -1,53 +1,33 @@
 from fastapi import FastAPI
-from pydantic import BaseModel,Field
+from pydantic import BaseModel
 import os
 from groq import Groq
-from dotenv import load_dotenv   
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
-load_dotenv()                   
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
-client = Groq(
-    api_key=os.environ.get("GROQ_API_KEY"),
-)
-
-
-app=FastAPI()
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://delicate-tarsier-516031.netlify.app"],
+    allow_origins=[
+        "https://delicate-tarsier-516031.netlify.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 class Mess(BaseModel):
-    message:str
+    message: str
 
-def verify(mess):
-   chat_completion = client.chat.completions.create(
-    messages=[
-        {
-            "role": "user",
-            "content": mess,
-        }
-    ],
-    model="llama-3.3-70b-versatile",
-   )
-
-   return chat_completion.choices[0].message.content
+def verify(mess: str):
+    chat_completion = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": mess}],
+    )
+    return chat_completion.choices[0].message.content
 
 @app.post("/chat")
-async def chat(res:Mess):
-     rest=verify(res.message.lower())
-     return{
-          "Message":rest
-     }
-
-app.mount(
-    "/",
-    StaticFiles(directory="Frontend/chatbot/dist", html=True),
-    name="frontend"
-)
+async def chat(res: Mess):
+    return {"Message": verify(res.message.lower())}
