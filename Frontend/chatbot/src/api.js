@@ -8,6 +8,11 @@ const API = axios.create({
 });
 
 export const sendMessage = async (message) => {
-  const response = await API.post("/chat", { message });
-  return response.data;
+  try {
+    const response = await API.post("/chat", { message });
+    return response.data;
+  } catch (error) {
+    console.error("API error:", error.response || error.message);
+    throw error;
+  }
 };
